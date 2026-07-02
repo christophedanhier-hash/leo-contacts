@@ -1,97 +1,169 @@
 <!DOCTYPE html>
 <html lang="fr" data-theme="light">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>📇 Annuaire LEO</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Annuaire LEO</title>
 <style>
 :root{--bg:#f8fafc;--card:#fff;--border:#e2e8f0;--text:#0f172a;--dim:#64748b;--accent:#7c3aed;--green:#16a34a;--red:#dc2626;--yellow:#d97706}
 [data-theme=dark]{--bg:#0f172a;--card:#1e293b;--border:#334155;--text:#e2e8f0;--dim:#64748b;--accent:#a78bfa;--green:#34d399;--red:#f87171;--yellow:#fbbf24}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);padding:16px;max-width:1100px;margin:0 auto}
-.header{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:var(--card);border:2px solid var(--border);border-radius:12px;margin-bottom:16px;flex-wrap:wrap;gap:8px}
-h1{font-size:20px}h1 span{color:var(--accent)}
-.btn{padding:8px 16px;border-radius:8px;border:2px solid var(--border);background:var(--card);color:var(--text);cursor:pointer;font-size:13px;font-weight:600;transition:.15s}
-.btn:hover{border-color:var(--accent)}.btn-p{background:var(--accent);color:#fff;border-color:var(--accent)}
-.btn-d{color:var(--red);border-color:var(--red)}.btn-s{background:var(--green);color:#fff;border-color:var(--green)}
-.actions{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
-input,select{padding:8px 12px;border:2px solid var(--border);border-radius:8px;font-size:13px;background:var(--card);color:var(--text);outline:none}
+body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--text);padding:16px;max-width:1100px;margin:0 auto}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:var(--card);border:2px solid var(--border);border-radius:12px;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+h1{font-size:20px}h1 b{color:var(--accent)}
+button{padding:8px 16px;border-radius:8px;border:2px solid var(--border);background:var(--card);color:var(--text);cursor:pointer;font-size:13px;font-weight:600}
+button:hover{border-color:var(--accent)}
+.btn-add{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-del{border-color:var(--red);color:var(--red)}
+.btn-save{background:var(--green);color:#fff;border-color:var(--green)}
+.bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+input,select{padding:8px 12px;border:2px solid var(--border);border-radius:8px;font-size:13px;background:var(--card);color:var(--text);outline:none;font-family:inherit}
 input:focus,select:focus{border-color:var(--accent)}
 table{width:100%;border-collapse:collapse;font-size:13px;background:var(--card);border:2px solid var(--border);border-radius:10px;overflow:hidden}
 th{text-align:left;padding:10px 12px;background:var(--bg);border-bottom:2px solid var(--border);color:var(--dim);font-weight:500}
-td{padding:8px 12px;border-bottom:1px solid var(--border)}tr:hover td{background:var(--bg)}
-.badge{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11px;font-weight:600;margin:1px 2px;border:1px solid var(--accent);color:var(--accent)}
-.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center}
-.modal.on{display:flex}
-.modal-box{background:var(--card);border:2px solid var(--border);border-radius:12px;padding:24px;width:90%;max-width:480px}
-.modal-box h3{margin-bottom:16px;color:var(--accent)}.modal-box label{display:block;font-size:12px;color:var(--dim);margin:8px 0 2px}
-.modal-box input{width:100%;margin-bottom:4px}.modal-box .btns{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
-.search-box{flex:1;min-width:200px}#count{color:var(--dim);font-size:13px}
+td{padding:8px 12px;border-bottom:1px solid var(--border)}
+tr:hover td{background:var(--bg)}
+.tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11px;font-weight:600;margin:1px 2px;border:1px solid var(--accent);color:var(--accent)}
+#overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center}
+#overlay.show{display:flex}
+#dlg{background:var(--card);border:2px solid var(--border);border-radius:12px;padding:24px;width:90%;max-width:450px}
+#dlg h3{margin-bottom:16px;color:var(--accent)}
+#dlg label{display:block;font-size:12px;color:var(--dim);margin:8px 0 2px}
+#dlg input{width:100%;margin-bottom:4px}
+#dlg .btns{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
+#srch{flex:1;min-width:180px}
+#cnt{color:var(--dim);font-size:13px}
 #toast{position:fixed;bottom:20px;right:20px;padding:12px 20px;border-radius:8px;font-size:14px;font-weight:600;z-index:200;display:none;border:2px solid var(--green);background:var(--bg);color:var(--green)}
 #toast.err{color:var(--red);border-color:var(--red)}
-@media(max-width:600px){.header{flex-direction:column}.actions{flex-direction:column}}
+#dirty{color:var(--yellow);font-weight:600;font-size:12px;display:none}
 </style>
 </head>
 <body>
-<div class="header">
-  <h1>📇 <span>Annuaire</span> LEO</h1>
+
+<div class="topbar">
+  <h1>📇 <b>Annuaire</b> LEO</h1>
   <div style="display:flex;gap:8px;align-items:center">
-    <span id="count">Chargement...</span>
-    <button class="btn" onclick="toggleTheme()">🌓</button>
-    <a href="https://docs.google.com/spreadsheets/d/1MD_gvazC1WbzVBvSwV2QvojKIv69yqlPZSsyIjBC3j4/edit" target="_blank" class="btn" style="text-decoration:none;font-size:12px">📊 Sheet</a>
+    <span id="cnt">-</span>
+    <button onclick="toggleTheme()">🌓</button>
+    <a href="https://docs.google.com/spreadsheets/d/1MD_gvazC1WbzVBvSwV2QvojKIv69yqlPZSsyIjBC3j4/edit" target="_blank" style="color:var(--accent);font-size:12px;text-decoration:none">📊 Sheet</a>
   </div>
 </div>
-<div class="actions">
-  <input class="search-box" placeholder="🔍 Filtrer..." oninput="filter()" id="search">
-  <select onchange="filter()" id="tagFilter"><option value="">Tous</option></select>
-  <button class="btn btn-p" onclick="openModal()">+ Ajouter</button>
-  <button class="btn btn-s" id="saveBtn" onclick="save()">💾 Publier</button>
-  <span id="dirty" style="color:var(--yellow);font-weight:600;font-size:12px;display:none">● Modifié</span>
+
+<div class="bar">
+  <input id="srch" placeholder="🔍 Filtrer..." oninput="render()">
+  <select id="tagsel" onchange="render()"><option value="">Tous</option></select>
+  <button class="btn-add" onclick="add()">+ Ajouter</button>
+  <button class="btn-save" id="saveBtn" onclick="save()">💾 Publier</button>
+  <span id="dirty">● Modifié</span>
 </div>
-<table><thead><tr><th>Nom</th><th>Email</th><th>Rôle</th><th>Tags</th><th></th></tr></thead><tbody id="tbody"></tbody></table>
+
+<table><thead><tr><th>Nom</th><th>Email</th><th>Rôle</th><th>Tags</th><th></th></tr></thead><tbody id="tb"></tbody></table>
+
 <div id="toast"></div>
-<div id="modal" class="modal" onclick="if(event.target===this)closeModal()">
-  <div class="modal-box">
-    <h3 id="modalTitle">Ajouter</h3>
-    <label>Nom</label><input id="mName"><label>Email</label><input id="mEmail" type="email">
-    <label>Role</label><input id="mRole"><label>Tags</label><input id="mTags" placeholder="famille, pro">
-    <div class="btns"><button class="btn" onclick="closeModal()">Annuler</button><button class="btn btn-s" onclick="saveContact()">✓ Enregistrer</button></div>
+
+<div id="overlay" onclick="if(event.target===this)closeDlg()">
+  <div id="dlg">
+    <h3 id="dlgTitle">Ajouter</h3>
+    <label>Nom</label><input id="fName">
+    <label>Email</label><input id="fEmail" type="email">
+    <label>Rôle</label><input id="fRole">
+    <label>Tags (virgule)</label><input id="fTags" placeholder="famille, pro">
+    <div class="btns">
+      <button onclick="closeDlg()">Annuler</button>
+      <button class="btn-save" onclick="saveContact()">✓ Enregistrer</button>
+    </div>
   </div>
 </div>
+
 <script>
-var C=[],edIdx=-1,dirty=false;
-var API="http://100.92.102.28:9876";
-function toggleTheme(){var h=document.documentElement;h.setAttribute("data-theme",h.getAttribute("data-theme")==="light"?"dark":"light");localStorage.setItem("leo-theme",h.getAttribute("data-theme"));}
+var contacts=[],editIdx=-1,dirty=false;
+
+function toggleTheme(){
+  var h=document.documentElement;
+  h.setAttribute("data-theme",h.getAttribute("data-theme")==="light"?"dark":"light");
+  localStorage.setItem("leo-theme",h.getAttribute("data-theme"));
+}
 (function(){var s=localStorage.getItem("leo-theme");if(s)document.documentElement.setAttribute("data-theme",s);})();
-function toast(m,err){var t=document.getElementById("toast");t.textContent=m;t.className=err?"err":"";setTimeout(function(){t.className="";},3000);}
-fetch("contacts.json?"+Date.now()).then(function(r){return r.json();}).then(function(d){C=d;filter();}).catch(function(){toast("Erreur chargement",true);});
+
+function msg(t,err){
+  var e=document.getElementById("toast");e.textContent=t;e.className=err?"err":"";
+  setTimeout(function(){e.className="";},2500);
+}
+
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
-function filter(){
-  var s=(document.getElementById("search").value||"").toLowerCase();
-  var tf=document.getElementById("tagFilter").value;
-  var f=C.filter(function(c){
-    if(s&&!c.name.toLowerCase().includes(s)&&!c.email.toLowerCase().includes(s)&&!c.role.toLowerCase().includes(s))return false;
-    if(tf&&!(c.tags||"").split(",").some(function(t){return t.trim()===tf;}))return false;
+
+function render(){
+  var s=(document.getElementById("srch").value||"").toLowerCase();
+  var tf=document.getElementById("tagsel").value;
+  var list=contacts.filter(function(c){
+    if(s&&c.name.toLowerCase().indexOf(s)<0&&c.email.toLowerCase().indexOf(s)<0&&(c.role||"").toLowerCase().indexOf(s)<0)return false;
+    if(tf&&(c.tags||"").split(",").indexOf(tf)<0)return false;
     return true;
   });
-  var allTags=new Set();C.forEach(function(c){(c.tags||"").split(",").forEach(function(t){var tt=t.trim();if(tt)allTags.add(tt);});});
-  var sel=document.getElementById("tagFilter"),cur=sel.value;
-  sel.innerHTML="<option value=\"\">Tous</option>"+Array.from(allTags).sort().map(function(t){return "<option value=\""+t+"\">"+t+"</option>";}).join("");sel.value=cur;
-  document.getElementById("tbody").innerHTML=f.map(function(c){var i=C.indexOf(c);return "<tr><td><strong>"+esc(c.name)+"</strong></td><td><a href=\"mailto:"+esc(c.email)+"\" style=\"color:var(--accent)\">"+esc(c.email)+"</a></td><td>"+esc(c.role)+"</td><td>"+(c.tags||"").split(",").map(function(t){return t.trim()?"<span class=\"badge\">"+esc(t.trim())+"</span>":"";}).join("")+"</td><td style=\"text-align:right;white-space:nowrap\"><button class=\"btn\" onclick=\"edit("+i+")\">✏️</button> <button class=\"btn btn-d\" onclick=\"del("+i+")\">🗑️</button></td></tr>";}).join("");
-  document.getElementById("count").textContent=f.length+" contacts";
+  
+  var tags=new Set();
+  contacts.forEach(function(c){(c.tags||"").split(",").forEach(function(t){var x=t.trim();if(x)tags.add(x);})});
+  var sel=document.getElementById("tagsel"),cur=sel.value;
+  sel.innerHTML="<option value=''>Tous</option>"+Array.from(tags).sort().map(function(t){return"<option>"+t+"</option>";}).join("");
+  sel.value=cur;
+  
+  document.getElementById("tb").innerHTML=list.map(function(c,i){
+    var idx=contacts.indexOf(c);
+    var t=(c.tags||"").split(",").map(function(x){return x.trim()?"<span class='tag'>"+esc(x.trim())+"</span>":"";}).join("");
+    return"<tr><td><strong>"+esc(c.name)+"</strong></td><td><a href='mailto:"+esc(c.email)+"' style='color:var(--accent)'>"+esc(c.email)+"</a></td><td>"+esc(c.role||"")+"</td><td>"+t+"</td><td style='text-align:right;white-space:nowrap'><button onclick='edit("+idx+")'>✏️</button> <button class='btn-del' onclick='del("+idx+")'>🗑️</button></td></tr>";
+  }).join("");
+  document.getElementById("cnt").textContent=list.length+" contact"+(list.length>1?"s":"");
 }
-function openModal(){edIdx=-1;document.getElementById("modalTitle").textContent="Ajouter";document.getElementById("mName").value="";document.getElementById("mEmail").value="";document.getElementById("mRole").value="";document.getElementById("mTags").value="";document.getElementById("modal").classList.add("on");}
-function edit(i){edIdx=i;var c=C[i];document.getElementById("modalTitle").textContent="Modifier "+c.name;document.getElementById("mName").value=c.name;document.getElementById("mEmail").value=c.email;document.getElementById("mRole").value=c.role||"";document.getElementById("mTags").value=c.tags||"";document.getElementById("modal").classList.add("on");}
-function closeModal(){document.getElementById("modal").classList.remove("on");}
-function saveContact(){var c={name:document.getElementById("mName").value.trim(),email:document.getElementById("mEmail").value.trim(),role:document.getElementById("mRole").value.trim(),tags:document.getElementById("mTags").value.trim(),active:true};if(!c.name||!c.email){toast("Nom et email obligatoires",true);return;}if(edIdx>=0){C[edIdx]=c;}else{C.push(c);}closeModal();dirty=true;document.getElementById("dirty").style.display="inline";document.getElementById("saveBtn").classList.add("btn-s");filter();toast("✓ Enregistre — Publier pour sauver");}
-function del(i){if(!confirm("Supprimer "+C[i].name+" ?"))return;C.splice(i,1);dirty=true;document.getElementById("dirty").style.display="inline";document.getElementById("saveBtn").classList.add("btn-s");filter();toast("🗑️ Supprime — Publier pour sauver");}
-function save(){var btn=document.getElementById("saveBtn");btn.textContent="⏳ Envoi...";btn.disabled=true;
-  fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(C)})
-  .then(function(r){return r.json();}).then(function(d){
-    dirty=false;document.getElementById("dirty").style.display="none";btn.classList.remove("btn-s");toast("✅ Publie !");
-    setTimeout(function(){fetch("contacts.json?"+Date.now()).then(function(r){return r.json();}).then(function(d){C=d;filter();});},3000);
-  }).catch(function(){toast("⚠️ Hors reseau — utilise la Sheet",true);})
+
+// CRUD
+function add(){editIdx=-1;document.getElementById("dlgTitle").textContent="Ajouter";document.getElementById("fName").value="";document.getElementById("fEmail").value="";document.getElementById("fRole").value="";document.getElementById("fTags").value="";document.getElementById("overlay").classList.add("show");}
+function edit(i){editIdx=i;var c=contacts[i];document.getElementById("dlgTitle").textContent="Modifier "+c.name;document.getElementById("fName").value=c.name;document.getElementById("fEmail").value=c.email;document.getElementById("fRole").value=c.role||"";document.getElementById("fTags").value=c.tags||"";document.getElementById("overlay").classList.add("show");}
+function closeDlg(){document.getElementById("overlay").classList.remove("show");}
+function saveContact(){
+  var c={
+    name:document.getElementById("fName").value.trim(),
+    email:document.getElementById("fEmail").value.trim(),
+    role:document.getElementById("fRole").value.trim(),
+    tags:document.getElementById("fTags").value.trim(),
+    active:true
+  };
+  if(!c.name||!c.email){msg("Nom et email obligatoires",true);return;}
+  if(editIdx>=0){contacts[editIdx]=c;}else{contacts.push(c);}
+  closeDlg();dirty=true;document.getElementById("dirty").style.display="inline";document.getElementById("saveBtn").classList.add("btn-save");render();msg("Enregistré — Publier pour sauver");
+}
+function del(i){if(!confirm("Supprimer "+contacts[i].name+" ?"))return;contacts.splice(i,1);dirty=true;document.getElementById("dirty").style.display="inline";document.getElementById("saveBtn").classList.add("btn-save");render();msg("Supprimé — Publier pour sauver");}
+
+// SAVE
+function save(){
+  var btn=document.getElementById("saveBtn");
+  btn.textContent="Envoi...";btn.disabled=true;
+  var body=JSON.stringify(contacts);
+  
+  fetch("http://100.92.102.28:9876",{method:"POST",headers:{"Content-Type":"application/json"},body:body})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    dirty=false;document.getElementById("dirty").style.display="none";btn.classList.remove("btn-save");msg("✅ Publié!");
+    setTimeout(function(){load();},2000);
+  })
+  .catch(function(){
+    // Fallback: download
+    var b=new Blob([body],{type:"application/json"});
+    var u=URL.createObjectURL(b);
+    var a=document.createElement("a");a.href=u;a.download="contacts.json";a.click();
+    URL.revokeObjectURL(u);
+    msg("⚠️ Téléchargé — envoie à LEO");
+  })
   .finally(function(){btn.textContent="💾 Publier";btn.disabled=false;});
 }
+
+function load(){
+  fetch("contacts.json?"+Date.now())
+  .then(function(r){return r.json();})
+  .then(function(d){contacts=d;render();})
+  .catch(function(){msg("Erreur chargement",true);});
+}
+
+load();
 </script>
 </body>
 </html>
