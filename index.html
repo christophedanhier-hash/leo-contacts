@@ -35,11 +35,15 @@ td{padding:8px 12px;border-bottom:1px solid var(--border)}tr:hover td{background
 <body>
 <div class="header">
   <h1>📇 <span>Annuaire</span> LEO</h1>
-  <div style="display:flex;gap:8px;align-items:center"><span id="count">Chargement...</span><button class="btn" onclick="toggleTheme()">🌓</button></div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <span id="count">Chargement...</span>
+    <button class="btn" onclick="toggleTheme()">🌓</button>
+    <a href="https://docs.google.com/spreadsheets/d/1MD_gvazC1WbzVBvSwV2QvojKIv69yqlPZSsyIjBC3j4/edit" target="_blank" class="btn" style="text-decoration:none;font-size:12px">📊 Sheet</a>
+  </div>
 </div>
 <div class="actions">
   <input class="search-box" placeholder="🔍 Filtrer..." oninput="filter()" id="search">
-  <select onchange="filter()" id="tagFilter"><option value="">Tous les tags</option></select>
+  <select onchange="filter()" id="tagFilter"><option value="">Tous</option></select>
   <button class="btn btn-p" onclick="openModal()">+ Ajouter</button>
   <button class="btn btn-s" id="saveBtn" onclick="save()">💾 Publier</button>
   <span id="dirty" style="color:var(--yellow);font-weight:600;font-size:12px;display:none">● Modifié</span>
@@ -49,35 +53,55 @@ td{padding:8px 12px;border-bottom:1px solid var(--border)}tr:hover td{background
 <div id="modal" class="modal" onclick="if(event.target===this)closeModal()">
   <div class="modal-box">
     <h3 id="modalTitle">Ajouter</h3>
-    <label>Nom</label><input id="mName" placeholder="Nom complet">
-    <label>Email</label><input id="mEmail" type="email" placeholder="email@exemple.com">
-    <label>Rôle</label><input id="mRole" placeholder="Fonction">
+    <label>Nom</label><input id="mName">
+    <label>Email</label><input id="mEmail" type="email">
+    <label>Rôle</label><input id="mRole">
     <label>Tags</label><input id="mTags" placeholder="famille, pro">
     <div class="btns"><button class="btn" onclick="closeModal()">Annuler</button><button class="btn btn-s" onclick="saveContact()">✓ Enregistrer</button></div>
   </div>
 </div>
+
 <script>
 var C=[],edIdx=-1,dirty=false;
+var API='http://100.92.102.28:9876';
+
 function toggleTheme(){var h=document.documentElement;h.setAttribute('data-theme',h.getAttribute('data-theme')==='light'?'dark':'light');localStorage.setItem('leo-theme',h.getAttribute('data-theme'));}
 (function(){var s=localStorage.getItem('leo-theme');if(s)document.documentElement.setAttribute('data-theme',s)})();
 function toast(m,err){var t=document.getElementById('toast');t.textContent=m;t.className=err?'err':'';setTimeout(function(){t.className=''},3000);}
-fetch('contacts.json').then(function(r){return r.json()}).then(function(d){C=d;filter()}).catch(function(){C=[];filter();toast('Erreur chargement',true)});
+
+// LOAD from Sheet API
+fetch(API).then(function(r){return r.json()}).then(function(d){C=d;filter()}).catch(function(){toast('Erreur chargement — hors réseau ?',true);C=[];filter()});
+
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function filter(){
   var s=(document.getElementById('search').value||'').toLowerCase();
   var tf=document.getElementById('tagFilter').value;
-  var f=C.filter(function(c){if(!c.active)return false;if(s&&!c.name.toLowerCase().includes(s)&&!c.email.toLowerCase().includes(s)&&!c.role.toLowerCase().includes(s))return false;if(tf&&!(c.tags||'').split(',').some(function(t){return t.trim()===tf}))return false;return true;});
-  var allTags=new Set();C.forEach(function(c){if(c.active)(c.tags||'').split(',').forEach(function(t){var tt=t.trim();if(tt)allTags.add(tt)})});
-  var sel=document.getElementById('tagFilter'),cur=sel.value;sel.innerHTML='<option value="">Tous</option>'+Array.from(allTags).sort().map(function(t){return '<option value="'+t+'">'+t+'</option>'}).join('');sel.value=cur;
+  var f=C.filter(function(c){
+    if(s&&!c.name.toLowerCase().includes(s)&&!c.email.toLowerCase().includes(s)&&!c.role.toLowerCase().includes(s))return false;
+    if(tf&&!(c.tags||'').split(',').some(function(t){return t.trim()===tf}))return false;
+    return true;
+  });
+  var allTags=new Set();C.forEach(function(c){(c.tags||'').split(',').forEach(function(t){var tt=t.trim();if(tt)allTags.add(tt)})});
+  var sel=document.getElementById('tagFilter'),cur=sel.value;
+  sel.innerHTML='<option value="">Tous</option>'+Array.from(allTags).sort().map(function(t){return '<option value="'+t+'">'+t+'</option>'}).join('');sel.value=cur;
   document.getElementById('tbody').innerHTML=f.map(function(c){var i=C.indexOf(c);return '<tr><td><strong>'+esc(c.name)+'</strong></td><td><a href="mailto:'+esc(c.email)+'" style="color:var(--accent)">'+esc(c.email)+'</a></td><td>'+esc(c.role)+'</td><td>'+(c.tags||'').split(',').map(function(t){return t.trim()?'<span class="badge">'+esc(t.trim())+'</span>':''}).join('')+'</td><td style="text-align:right;white-space:nowrap"><button class="btn" onclick="edit('+i+')">✏️</button> <button class="btn btn-d" onclick="del('+i+')">🗑️</button></td></tr>';}).join('');
-  document.getElementById('count').textContent=f.length+' / '+C.filter(function(c){return c.active}).length+' contacts';
+  document.getElementById('count').textContent=f.length+' contacts';
 }
+
 function openModal(){edIdx=-1;document.getElementById('modalTitle').textContent='Ajouter';document.getElementById('mName').value='';document.getElementById('mEmail').value='';document.getElementById('mRole').value='';document.getElementById('mTags').value='';document.getElementById('modal').classList.add('on')}
 function edit(i){edIdx=i;var c=C[i];document.getElementById('modalTitle').textContent='Modifier '+c.name;document.getElementById('mName').value=c.name;document.getElementById('mEmail').value=c.email;document.getElementById('mRole').value=c.role||'';document.getElementById('mTags').value=c.tags||'';document.getElementById('modal').classList.add('on')}
 function closeModal(){document.getElementById('modal').classList.remove('on')}
-function saveContact(){var c={name:document.getElementById('mName').value.trim(),email:document.getElementById('mEmail').value.trim(),role:document.getElementById('mRole').value.trim(),tags:document.getElementById('mTags').value.trim(),active:true};if(!c.name||!c.email){toast('Nom et email obligatoires',true);return}if(edIdx>=0){C[edIdx]=c}else{C.push(c)}closeModal();dirty=true;document.getElementById('dirty').style.display='inline';document.getElementById('saveBtn').classList.add('btn-s');filter();toast('✓ Enregistré — Publier pour sauver');}
+function saveContact(){var c={name:document.getElementById('mName').value.trim(),email:document.getElementById('mEmail').value.trim(),role:document.getElementById('mRole').value.trim(),tags:document.getElementById('mTags').value.trim(),active:true};if(!c.name||!c.email){toast('Nom et email obligatoires',true);return}if(edIdx>=0){C[edIdx]=c}else{C.push(c)}closeModal();dirty=true;document.getElementById('dirty').style.display='inline';document.getElementById('saveBtn').classList.add('btn-s');filter();toast('✓ Enregistré — Publier pour sauver dans la Sheet');}
 function del(i){if(!confirm('Supprimer '+C[i].name+' ?'))return;C.splice(i,1);dirty=true;document.getElementById('dirty').style.display='inline';document.getElementById('saveBtn').classList.add('btn-s');filter();toast('🗑️ Supprimé — Publier pour sauver');}
-function save(){var btn=document.getElementById('saveBtn');btn.textContent='⏳ Envoi...';btn.disabled=true;var json=JSON.stringify(C,null,2);fetch('http://100.92.102.28:9876/save',{method:'POST',headers:{'Content-Type':'application/json'},body:json}).then(function(r){return r.json()}).then(function(d){dirty=false;document.getElementById('dirty').style.display='none';btn.classList.remove('btn-s');toast('✅ Publié !');}).catch(function(){var blob=new Blob([json],{type:'application/json'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='contacts.json';a.click();URL.revokeObjectURL(url);toast('⚠️ Téléchargé');}).finally(function(){btn.textContent='💾 Publier';btn.disabled=false;});}
+
+// SAVE to Sheet API
+function save(){var btn=document.getElementById('saveBtn');btn.textContent='⏳ Envoi...';btn.disabled=true;
+  fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(C)})
+  .then(function(r){return r.json()})
+  .then(function(d){dirty=false;document.getElementById('dirty').style.display='none';btn.classList.remove('btn-s');toast('✅ Publié dans la Sheet !');filter();})
+  .catch(function(){toast('⚠️ Hors réseau — réessaie',true);})
+  .finally(function(){btn.textContent='💾 Publier';btn.disabled=false;});
+}
 </script>
 </body>
 </html>
