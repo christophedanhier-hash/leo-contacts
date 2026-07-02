@@ -129,7 +129,7 @@ function saveToGitHub(){
   var btn=document.getElementById('saveBtn');
   btn.textContent='⏳ Envoi...';btn.disabled=true;
   
-  fetch('http://100.92.102.28:5678/webhook/save-contacts-v2',{
+  fetch('http://100.92.102.28:5678/webhook/save-contacts',{
     method:'POST',headers:{'Content-Type':'application/json'},
     body:json
   })
