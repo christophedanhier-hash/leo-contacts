@@ -1,1 +1,15 @@
-[]
+[
+  {"name":"Christophe Danhier","email":"christophe.danhier@gmail.com","role":"Principal","tags":"famille","active":true},
+  {"name":"Émilie Danhier","email":"emidanhier@gmail.com","role":"Fille","tags":"famille,emile","active":true},
+  {"name":"John Lanuit","email":"johnlanuit@gmail.com","role":"Ami","tags":"veille-ia","active":true},
+  {"name":"ThePlanetRider","email":"theplanetrider@gmail.com","role":"Ami","tags":"veille-ia","active":true},
+  {"name":"Akin Tatar","email":"Akin.Tatar@solidaris.be","role":"Collègue Solidaris","tags":"vip,pro","active":true},
+  {"name":"Steve Dias Branco","email":"Steve.DIASBRANCODUARTO@solidaris.be","role":"Collègue Solidaris","tags":"vip,pro","active":true},
+  {"name":"Chris Dubois","email":"chrisdubois15@gmail.com","role":"Contact","tags":"personnel","active":true},
+  {"name":"Vincent Haulotte","email":"vincenthaulotte@gmail.com","role":"Contact","tags":"personnel","active":true},
+  {"name":"PC 210363","email":"pc210363@gmail.com","role":"Contact","tags":"personnel","active":true},
+  {"name":"Eneco eMobility","email":"emobility@eneco.com","role":"Service","tags":"energie,maison","active":true},
+  {"name":"Eneco Support","email":"support@eneco-emobility.com","role":"Service","tags":"energie,maison","active":true},
+  {"name":"Ayvens","email":"be@ayvens.com","role":"Service","tags":"voiture","active":true},
+  {"name":"Camping Spartacus","email":"staff@campingspartacus.it","role":"Camping","tags":"voyages,camping","active":true}
+]
